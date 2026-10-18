@@ -1,0 +1,417 @@
+<title>やりなおし数学 レベル13</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+{{KATEX_CSS}}
+<style>
+/* 方眼ノートの上で1問ずつ進む、1カラムの学習画面。マイナスは青、プラスは赤で一貫させる */
+:root {
+  --bg: #f1f6f4;
+  --grid: rgba(48, 120, 110, .11);
+  --card: #ffffff;
+  --fg: #1d2a35;
+  --muted: #55677a;
+  --line: #d3dfe1;
+  --ink: #213a66;
+  --ink-fg: #ffffff;
+  --neg: #2a68d4;
+  --pos: #d4442a;
+  --good: #187a47;
+  --good-bg: #e4f4ea;
+  --bad: #b3261e;
+  --bad-bg: #fbe9e7;
+  --hl: #ffe27a;
+  --font-head: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+  --font-body: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121a21; --grid: rgba(150, 205, 215, .07); --card: #1b2630; --fg: #e8eef3; --muted: #9fb2c1;
+    --line: #2d3d4a; --ink: #9db9ff; --ink-fg: #0f1a2e; --neg: #6ea8ff; --pos: #ff8d6e;
+    --good: #5bd592; --good-bg: #17342a; --bad: #ff8a80; --bad-bg: #3a2024; --hl: #6b5a14;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121a21; --grid: rgba(150, 205, 215, .07); --card: #1b2630; --fg: #e8eef3; --muted: #9fb2c1;
+  --line: #2d3d4a; --ink: #9db9ff; --ink-fg: #0f1a2e; --neg: #6ea8ff; --pos: #ff8d6e;
+  --good: #5bd592; --good-bg: #17342a; --bad: #ff8a80; --bad-bg: #3a2024; --hl: #6b5a14;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background-color: var(--bg); color: var(--fg);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+  font-family: var(--font-body); font-size: 17px; line-height: 1.75;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 56px;
+}
+main { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+h1, h2, h3 { font-family: var(--font-head); text-wrap: balance; margin: 0; line-height: 1.35; }
+h1 { font-size: 1.9rem; letter-spacing: .02em; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1.05rem; }
+p { margin: 0; }
+.allbtn { margin: 10px 0 4px; }
+.kicker.lvbig { font-size: 2rem; letter-spacing: .08em; color: var(--fg); margin: 0 0 2px; }
+.kicker { font-family: var(--font-head); font-weight: 700; font-size: .85rem; letter-spacing: .12em; color: var(--muted); }
+.lead { color: var(--muted); margin-top: 6px; }
+header { padding-top: 4px; }
+
+.tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tab {
+  font: inherit; text-align: left; cursor: pointer; padding: 10px 10px; border-radius: 12px; display: flex; flex-direction: column; justify-content: flex-start;
+  border: 2px solid var(--line); background: var(--card); color: var(--fg); min-width: 0;
+}
+.tab b { display: block; font-family: var(--font-head); font-size: .95rem; line-height: 1.4; }
+.tab span { display: block; font-size: .8rem; color: var(--muted); line-height: 1.5; }
+.tab[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 2px var(--ink) inset; }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+ruby rt { font-size: .55em; font-weight: 500; letter-spacing: 0; }
+.mark { background: linear-gradient(transparent 58%, var(--hl) 58%); }
+.btn {
+  font: inherit; font-family: var(--font-head); font-weight: 700; cursor: pointer; border: 0; border-radius: 12px;
+  background: var(--ink); color: var(--ink-fg); padding: 14px 18px; min-height: 52px; font-size: 1.02rem;
+}
+.btn.sub { background: transparent; color: var(--ink); border: 2px solid var(--ink); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; }
+.row > .btn { flex: 1 1 140px; }
+button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* 数直線 */
+.nl { width: 100%; height: auto; display: block; }
+.nl-axis { stroke: var(--fg); stroke-width: 2; }
+.nl-tick { stroke: var(--fg); stroke-width: 1.5; }
+.nl-n { font: 700 15px var(--font-body); text-anchor: middle; fill: var(--fg); }
+.nl-n.neg { fill: var(--neg); } .nl-n.pos { fill: var(--pos); }
+.pt { stroke: var(--card); stroke-width: 2.5; }
+.pt.neg { fill: var(--neg); } .pt.pos { fill: var(--pos); } .pt.zero { fill: var(--fg); }
+.pt-l { font: 700 15px var(--font-body); text-anchor: middle; fill: var(--fg); }
+.arc { fill: none; stroke: var(--ink); stroke-width: 2.5; }
+.head { fill: var(--ink); }
+.arc-l { font: 700 15px var(--font-body); text-anchor: middle; fill: var(--ink); }
+
+/* 分数の図 */
+.bars { display: flex; flex-direction: column; gap: 10px; }
+.bar-row { display: flex; align-items: center; gap: 12px; }
+.bar-label { flex: 0 0 76px; text-align: right; font-size: 1.1rem; }
+.bar { flex: 1 1 auto; min-width: 0; height: auto; }
+.cell { fill: transparent; stroke: var(--ink); stroke-width: 1.5; }
+.cell.on { fill: var(--ink); fill-opacity: .55; }
+.cap { color: var(--muted); font-size: .9rem; }
+
+/* 問題 */
+.dots { display: flex; gap: 6px; }
+.dot { flex: 1 1 0; height: 8px; border-radius: 4px; background: var(--line); }
+.dot.done { background: var(--ink); } .dot.now { background: var(--hl); outline: 2px solid var(--ink); outline-offset: -2px; }
+.qno { font-family: var(--font-head); font-weight: 700; color: var(--muted); font-size: .9rem; }
+.q { font-size: 1.15rem; line-height: 1.9; }
+.q small { font-size: .88rem; color: var(--muted); }
+.katex { font-size: 1.12em; }
+.choices { display: grid; gap: 10px; }
+.ch {
+  font: inherit; cursor: pointer; display: flex; align-items: center; gap: 12px; text-align: left; min-height: 58px;
+  padding: 10px 14px; border-radius: 12px; border: 2px solid var(--line); background: var(--card); color: var(--fg); min-width: 0;
+}
+.ch .mk { flex: 0 0 30px; height: 30px; border-radius: 50%; border: 2px solid var(--muted); color: var(--muted); font: 700 .85rem var(--font-head); display: grid; place-items: center; }
+.ch .ct { flex: 1 1 auto; min-width: 0; font-size: 1.1rem; }
+.ch .res { flex: 0 0 auto; font: 700 1.3rem var(--font-head); }
+.ch:not(.done):hover { border-color: var(--ink); }
+.ch.right { border-color: var(--good); background: var(--good-bg); }
+.ch.right .res { color: var(--good); }
+.ch.miss { border-color: var(--bad); background: var(--bad-bg); border-style: dashed; }
+.ch.miss .res { color: var(--bad); }
+.ch.shown { box-shadow: 0 0 0 3px var(--ink); }
+
+.fb { display: flex; flex-direction: column; gap: 12px; }
+.why { border-radius: 12px; padding: 12px 14px; background: var(--bad-bg); border-left: 5px solid var(--bad); }
+.why.ok { background: var(--good-bg); border-left-color: var(--good); }
+.why .h { font-family: var(--font-head); font-weight: 700; margin-bottom: 2px; }
+.steps { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 6px; }
+.point { border-radius: 12px; padding: 10px 14px; background: color-mix(in srgb, var(--hl) 55%, var(--card)); }
+.hint { color: var(--muted); font-size: .88rem; }
+
+.pg { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.now-n { font-family: var(--font-head); font-weight: 700; font-size: 1.2rem; }
+.rules { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 4px; }
+.score { font-family: var(--font-head); font-size: 2.4rem; font-weight: 700; line-height: 1.2; }
+.miss-list { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.miss-list li { padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); }
+.steplist { display: flex; flex-direction: column; gap: 10px; }
+.step { font: inherit; text-align: left; cursor: pointer; display: grid; grid-template-columns: 34px minmax(0,1fr) auto; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; border: 2px solid var(--line); background: var(--card); color: var(--fg); }
+.step:hover { border-color: var(--ink); }
+.step .no { width: 34px; height: 34px; border-radius: 50%; background: var(--ink); color: var(--ink-fg); font: 700 1rem var(--font-head); display: grid; place-items: center; }
+.step.clear .no { background: var(--good); color: #fff; }
+.step b { display: block; font-family: var(--font-head); font-size: 1.05rem; line-height: 1.4; }
+.step span.s { display: block; font-size: .82rem; color: var(--muted); line-height: 1.5; }
+.step .sc { font: 700 .95rem var(--font-head); color: var(--muted); white-space: nowrap; }
+.step.clear .sc { color: var(--good); }
+.about { background: var(--card); }
+.back { font: inherit; background: none; border: 0; color: var(--ink); cursor: pointer; padding: 4px 0; text-align: left; font-weight: 700; align-self: flex-start; min-height: 44px; }
+.intro { font-size: 1.05rem; }
+.rvs { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 4px 14px; }
+.rvs > summary { cursor: pointer; font: 700 1.05rem var(--font-head); padding: 12px 0; min-height: 44px; }
+.rvs[open] > summary { border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+.rvs .stack { display: flex; flex-direction: column; gap: 14px; padding-bottom: 14px; }
+.rv { border-color: var(--line); background: var(--bg); }
+.rv-ch { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.rv-ch li { display: flex; gap: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; background: var(--card); min-width: 0; }
+.rv-ch li.ok { border-color: var(--good); background: var(--good-bg); }
+.rv-m { flex: 0 0 1.4em; font: 700 1.1rem var(--font-head); }
+.rv-why { font-size: .88rem; color: var(--muted); }
+.rtab { border-collapse: collapse; margin: 10px 0 0; max-width: 100%; }
+.rtab td { padding: 6px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.hw { width: 100%; height: auto; display: block; }
+.hw-t { font: 700 15px var(--font-head); fill: var(--muted); }
+.hw-n { font: 700 24px var(--font-body); fill: var(--fg); }
+.hw-l { stroke: var(--fg); stroke-width: 3; stroke-linecap: round; }
+.hw-l.hw-bad { stroke: var(--bad); } .hw-l.hw-ok { stroke: var(--good); }
+.topnav { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.topnav a, .navbtn { font: 700 .95rem var(--font-head); color: var(--ink); text-decoration: none; background: var(--card); border: 2px solid var(--line); border-radius: 999px; padding: 8px 16px; min-height: 44px; display: inline-flex; align-items: center; cursor: pointer; }
+.topnav a:hover, .navbtn:hover { border-color: var(--ink); }
+.topnav a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+footer { color: var(--muted); font-size: .82rem; text-align: center; }
+@media (prefers-reduced-motion: no-preference) {
+  .ch, .tab, .btn { transition: border-color .15s, background-color .15s; }
+}
+</style>
+
+<main id="app"></main>
+
+{{KATEX_JS}}
+<script>
+{{DATA_JS}}
+</script>
+<script>
+(function () {
+  var MINUS = '−';
+  var KEY = 'suugaku-lv13-best1';
+  var CLEAR = 5;
+  var MARKS = ['ア', 'イ', 'ウ', 'エ'];
+  var app = document.getElementById('app');
+  var S = { part: 0, step: 0, phase: 'list', qi: 0, order: [], sel: null, shown: null, results: [], pos: 0, best: loadBest() };
+
+  function loadBest() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  function saveBest() { try { localStorage.setItem(KEY, JSON.stringify(S.best)); } catch (e) {} }
+
+  function m(s) {
+    return s.replace(/\$([^$]+)\$/g, function (_, t) {
+      try { return katex.renderToString(t, { throwOnError: false }); } catch (e) { return t; }
+    });
+  }
+  function num(v) { return v < 0 ? MINUS + (-v) : String(v); }
+  function shuffle(a) {
+    a = a.slice();
+    for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+    return a;
+  }
+  function cur() { return PARTS[S.part].steps[S.step]; }
+
+  /* ---------- 図 ---------- */
+  function nl(c) {
+    var arrows = c.arrows || [];
+    var W = 420, pad = 24, H = arrows.length ? 140 : 100, y = arrows.length ? 100 : 62;
+    var span = c.max - c.min;
+    function x(v) { return pad + (v - c.min) / span * (W - 2 * pad); }
+    var s = '<svg class="nl" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="数直線">';
+    s += '<line class="nl-axis" x1="' + (pad - 14) + '" y1="' + y + '" x2="' + (W - pad + 14) + '" y2="' + y + '"/>';
+    for (var v = c.min; v <= c.max; v++) {
+      var cls = v < 0 ? 'neg' : v > 0 ? 'pos' : 'zero';
+      s += '<line class="nl-tick" x1="' + x(v) + '" y1="' + (y - 7) + '" x2="' + x(v) + '" y2="' + (y + 7) + '"/>';
+      s += '<text class="nl-n ' + cls + '" x="' + x(v) + '" y="' + (y + 28) + '">' + num(v) + '</text>';
+    }
+    arrows.forEach(function (a) {
+      var x1 = x(a.from), x2 = x(a.to), xm = (x1 + x2) / 2, ya = y - 36;
+      s += '<path class="arc" d="M' + x1 + ',' + ya + ' Q' + xm + ',' + (ya - 64) + ' ' + x2 + ',' + ya + '"/>';
+      s += '<polygon class="head" points="' + (x2 - 7) + ',' + (ya - 10) + ' ' + (x2 + 7) + ',' + (ya - 10) + ' ' + x2 + ',' + (ya + 2) + '"/>';
+      s += '<text class="arc-l" x="' + xm + '" y="' + (ya - 40) + '">' + a.label + '</text>';
+    });
+    (c.pts || []).forEach(function (p) {
+      var cl = p.v < 0 ? 'neg' : p.v > 0 ? 'pos' : 'zero';
+      s += '<circle class="pt ' + cl + '" cx="' + x(p.v) + '" cy="' + y + '" r="10"/>';
+      if (p.label) s += '<text class="pt-l" x="' + x(p.v) + '" y="' + (y - 18) + '">' + p.label + '</text>';
+    });
+    return s + '</svg>';
+  }
+  function bars(rows) {
+    var W = 360, h = 30;
+    return '<div class="bars">' + rows.map(function (r) {
+      var cw = W / r.n, svg = '<svg class="bar" viewBox="0 0 ' + W + ' ' + h + '" aria-hidden="true">';
+      for (var i = 0; i < r.n; i++) {
+        svg += '<rect class="cell' + (i < r.k ? ' on' : '') + '" x="' + (i * cw + 1) + '" y="1" width="' + (cw - 2) + '" height="' + (h - 2) + '" rx="3"/>';
+      }
+      return '<div class="bar-row"><span class="bar-label">' + m('$' + r.tex + '$') + '</span>' + svg + '</svg></div>';
+    }).join('') + '</div>';
+  }
+  function fig(f) { return !f ? '' : f.type === 'nl' ? nl(f) : f.type === 'svg' ? f.html : bars(f.rows); }
+
+  /* ---------- 画面 ---------- */
+  function head() {
+    var tabs = PARTS.map(function (p, i) {
+      var done = p.steps.filter(function (st) { return (S.best[st.id] || 0) >= CLEAR; }).length;
+      return '<button class="tab" data-act="part" data-i="' + i + '" aria-pressed="' + (i === S.part) + '"><b>' + p.title + '</b><span>' +
+        p.sub + '</span><span>クリア ' + done + '/' + p.steps.length + '</span></button>';
+    }).join('');
+    return '<nav class="topnav" aria-label="サイト内の移動"><a href="https://chugaku.senta1111.workers.dev/">← 中学トップ</a><a class="navbtn" href="https://chugaku.senta1111.workers.dev/suugaku.html">数学トップ</a></nav>' +
+      '<header><p class="kicker lvbig">レベル13</p><h1>やりなおし数学</h1>' +
+      '<p class="lead">相似、円周角、三平方の定理、そして標本調査。最後のレベル。図をよく見て進もう。</p></header>' +
+      '<nav class="tabs" aria-label="パート">' + tabs + '</nav>' +
+      (S.phase === 'review' ? '' : '<button class="btn sub allbtn" data-act="review">全問題を答えつきで見る（確認用）</button>');
+  }
+
+  function listView() {
+    var P = PARTS[S.part];
+    var items = P.steps.map(function (st, i) {
+      var b = S.best[st.id], ok = (b || 0) >= CLEAR;
+      return '<button class="step' + (ok ? ' clear' : '') + '" data-act="step" data-i="' + i + '"><span class="no">' + (ok ? '✓' : (i + 1)) + '</span>' +
+        '<span><b>' + st.title + '</b><span class="s">' + st.sub + '</span></span><span class="sc">' + (b != null ? b + '/' + st.qs.length : '') + '</span></button>';
+    }).join('');
+    return '<button class="step about" data-act="about"><span class="no">?</span><span><b>はじめに：まず見てみよう</b><span class="s">' +
+      P.aboutSub + '</span></span><span></span></button>' +
+      '<p class="kicker">ステップ（' + CLEAR + '問以上正解でクリア）</p><div class="steplist">' + items + '</div>' +
+      '<button class="btn sub" data-act="review">確認用：全問題を答えつきで見る</button>';
+  }
+
+  function aboutView() {
+    var P = PARTS[S.part];
+    var body = '<div class="card"><h2>' + P.aboutTitle + '</h2>' + P.about.map(function (bl) {
+      return bl.bars ? bars(bl.bars) : bl.cap ? '<p class="cap">' + m(bl.cap) + '</p>' : '<p>' + m(bl.p) + '</p>';
+    }).join('') + '</div>';
+    return '<button class="back" data-act="list">← ステップ一覧へ</button>' + body +
+      '<button class="btn" data-act="step" data-i="0">ステップ1へ進む</button>';
+  }
+
+  function introView() {
+    var st = cur();
+    return '<button class="back" data-act="list">← ステップ一覧へ</button>' +
+      '<div class="card"><p class="kicker">ステップ ' + (S.step + 1) + '</p><h2>' + st.title + '</h2><p class="intro">' + m(st.intro) + '</p></div>' +
+      '<button class="btn" data-act="start">問題にチャレンジ（' + st.qs.length + '問）</button>';
+  }
+
+  function quizView() {
+    var st = cur(), q = st.qs[S.qi], ord = S.order[S.qi], answered = S.sel !== null;
+    var dots = '<div class="dots" aria-hidden="true">' + st.qs.map(function (_, i) {
+      return '<i class="dot ' + (i < S.qi ? 'done' : i === S.qi ? 'now' : '') + '"></i>';
+    }).join('') + '</div>';
+    var chs = ord.map(function (ci, k) {
+      var c = q.ch[ci], cls = 'ch', res = '';
+      if (answered) {
+        cls += ' done';
+        if (ci === q.ans) { cls += ' right'; res = '○'; }
+        else if (ci === S.sel) { cls += ' miss'; res = '×'; }
+        if (ci === S.shown) cls += ' shown';
+      }
+      return '<button class="' + cls + '" data-act="pick" data-i="' + ci + '"><span class="mk">' + MARKS[k] + '</span><span class="ct">' + m(c.t) + '</span><span class="res">' + res + '</span></button>';
+    }).join('');
+    var fb = '';
+    if (answered) {
+      var sc = q.ch[S.shown], isAns = S.shown === q.ans;
+      var kana = MARKS[ord.indexOf(q.ans)];
+      fb = '<div class="fb" id="fb">';
+      if (isAns) {
+        fb += '<div class="why ok"><div class="h">○ ' + (S.sel === q.ans ? 'せいかい！' : 'これが正しい答え') + '</div></div>';
+      } else {
+        fb += '<div class="why"><div class="h">× ' + MARKS[ord.indexOf(S.shown)] + ' はどうしてちがう？</div>' + m(sc.why) + '</div>' +
+          '<p>正しい答えは <b>' + kana + '</b>。やり方を見てみよう。</p>';
+      }
+      fb += '<ol class="steps">' + q.steps.map(function (t) { return '<li>' + m(t) + '</li>'; }).join('') + '</ol>' +
+        '<div class="point"><b>ポイント</b>　' + m(q.point) + '</div>' +
+        '<p class="hint">ほかの選択肢をタップすると、その理由が見られるよ。</p>' +
+        '<button class="btn" data-act="next">' + (S.qi + 1 < st.qs.length ? '次の問題へ' : '結果を見る') + '</button></div>';
+    }
+    return dots + '<div class="card"><div class="qno">' + st.title + '　問 ' + (S.qi + 1) + ' / ' + st.qs.length + '</div>' +
+      '<p class="q">' + m(q.p) + '</p>' + fig(answered ? (q.figAfter || q.fig) : q.fig) +
+      '<div class="choices">' + chs + '</div></div>' + fb;
+  }
+
+  function resultView() {
+    var P = PARTS[S.part], st = cur(), total = st.qs.length, ok = S.results.filter(Boolean).length;
+    var misses = st.qs.filter(function (_, i) { return !S.results[i]; });
+    var cleared = ok >= CLEAR, hasNext = S.step + 1 < P.steps.length;
+    var msg = ok === total ? 'ぜんぶ正解！' : cleared ? 'クリア！まちがえた問題だけ、見ておこう。' : 'もう少し。解説を読んで、もう一度やってみよう。';
+    var list = misses.length ? '<h3>まちがえた問題</h3><ul class="miss-list">' + misses.map(function (q) {
+      return '<li>' + m(q.p.split('<br>')[0]) + '<br>正しい答え：' + m(q.ch[q.ans].t) + '</li>';
+    }).join('') + '</ul>' : '';
+    return '<div class="card"><p class="kicker">' + st.title + '　けっか</p><p class="score">' + ok + ' / ' + total + '</p><p>' + msg + '</p>' + list + '</div>' +
+      '<div class="row"><button class="btn sub" data-act="start">もういちど</button>' +
+      (hasNext ? '<button class="btn" data-act="step" data-i="' + (S.step + 1) + '">次のステップへ</button>' : '') +
+      '<button class="btn sub" data-act="list">一覧へ</button></div>';
+  }
+
+  function reviewView() {
+    var secs = PARTS.map(function (P) {
+      return '<h2>' + P.title + '</h2>' + P.steps.map(function (st, si) {
+        return '<details class="rvs" open><summary>ステップ' + (si + 1) + '　' + st.title + '（' + st.qs.length + '問）</summary><div class="stack">' +
+          '<p class="intro">' + m(st.intro) + '</p>' + st.qs.map(function (q, qi) {
+            var ch = q.ch.map(function (c, i) {
+              var ok = i === q.ans;
+              return '<li class="' + (ok ? 'ok' : '') + '"><span class="rv-m">' + (ok ? '○' : '×') + '</span><div>' + m(c.t) + (ok ? '' : '<div class="rv-why">' + m(c.why) + '</div>') + '</div></li>';
+            }).join('');
+            return '<div class="card rv"><div class="qno">問' + (qi + 1) + '</div><p class="q">' + m(q.p) + '</p>' + fig(q.figAfter || q.fig) +
+              '<ul class="rv-ch">' + ch + '</ul><ol class="steps">' + q.steps.map(function (t) { return '<li>' + m(t) + '</li>'; }).join('') + '</ol>' +
+              '<div class="point"><b>ポイント</b>　' + m(q.point) + '</div></div>';
+          }).join('') + '</div></details>';
+      }).join('');
+    }).join('');
+    return '<button class="back" data-act="list">← ステップ一覧へ</button><div class="card"><h2>確認用：全問題の一覧</h2><p>答えと解説をつけて、全問を並べています（実際の画面では、答えたあとに出る内容です）。</p>' +
+      '<div class="row"><button class="btn sub" data-act="openall" data-d="1">すべてひらく</button><button class="btn sub" data-act="openall" data-d="0">すべてとじる</button></div></div>' + secs;
+  }
+
+  function render() {
+    var body = S.phase === 'list' ? listView() : S.phase === 'about' ? aboutView() : S.phase === 'intro' ? introView() : S.phase === 'review' ? reviewView() : S.phase === 'quiz' ? quizView() : resultView();
+    var n = 0; PARTS.forEach(function (P) { P.steps.forEach(function (st) { n += st.qs.length; }); });
+    app.innerHTML = head() + body + '<footer>全' + n + '問</footer>';
+  }
+
+  function startQuiz() {
+    var st = cur();
+    S.phase = 'quiz'; S.qi = 0; S.sel = null; S.shown = null; S.results = [];
+    S.order = st.qs.map(function (q) { return shuffle(q.ch.map(function (_, i) { return i; })); });
+  }
+
+  app.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-act]');
+    if (!t) return;
+    var act = t.getAttribute('data-act'), i = Number(t.getAttribute('data-i'));
+    if (act === 'part') { S.part = i; S.phase = 'list'; render(); window.scrollTo(0, 0); }
+    else if (act === 'home') { S.part = 0; S.phase = 'list'; render(); window.scrollTo(0, 0); }
+    else if (act === 'list') { S.phase = 'list'; render(); window.scrollTo(0, 0); }
+    else if (act === 'review') { S.phase = 'review'; render(); window.scrollTo(0, 0); }
+    else if (act === 'openall') {
+      var o = t.getAttribute('data-d') === '1';
+      Array.prototype.forEach.call(app.querySelectorAll('details.rvs'), function (d) { d.open = o; });
+    }
+    else if (act === 'about') { S.phase = 'about'; render(); window.scrollTo(0, 0); }
+    else if (act === 'step') { S.step = i; S.phase = 'intro'; render(); window.scrollTo(0, 0); }
+    else if (act === 'mv') {
+      var d = Number(t.getAttribute('data-d'));
+      S.pos = d === 0 ? 0 : Math.max(-6, Math.min(6, S.pos + d));
+      document.getElementById('pg-fig').innerHTML = nl({ min: -6, max: 6, pts: [{ v: S.pos, label: num(S.pos) }] });
+      document.getElementById('pg-n').textContent = 'いまの位置：' + num(S.pos);
+    }
+    else if (act === 'start') { startQuiz(); render(); window.scrollTo(0, 0); }
+    else if (act === 'pick') {
+      var q = cur().qs[S.qi];
+      if (S.sel === null) { S.sel = i; S.results[S.qi] = (i === q.ans); }
+      S.shown = i; render();
+      var fb = document.getElementById('fb');
+      if (fb && fb.scrollIntoView) { try { fb.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (er) {} }
+    }
+    else if (act === 'next') {
+      var st = cur();
+      if (S.qi + 1 < st.qs.length) { S.qi++; S.sel = null; S.shown = null; }
+      else {
+        S.phase = 'result';
+        var ok = S.results.filter(Boolean).length;
+        if (S.best[st.id] == null || ok > S.best[st.id]) { S.best[st.id] = ok; saveBest(); }
+      }
+      render(); window.scrollTo(0, 0);
+    }
+  });
+  render();
+})();
+</script>
