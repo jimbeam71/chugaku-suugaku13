@@ -66,6 +66,10 @@ p { margin: 0; }
 .kicker { font-family: var(--font-head); font-weight: 700; font-size: .85rem; letter-spacing: .12em; color: var(--muted); }
 .lead { color: var(--muted); margin-top: 6px; }
 header { padding-top: 4px; }
+.streak { margin: 12px 0 0; padding: 10px 14px; border-radius: 12px; border: 2px solid var(--line); background: var(--card); font-weight: 700; line-height: 1.6; }
+.streak small { display: block; font-weight: 400; color: var(--muted); font-size: .82rem; }
+.streak.on { border-color: #e8a33d; background: #fff7e6; color: #3a2a00; }
+.streak.on small { color: #6b5a30; }
 
 .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .tab {
@@ -207,6 +211,28 @@ if (typeof module !== 'undefined') module.exports = PARTS;
   var S = { part: 0, step: 0, phase: 'list', qi: 0, order: [], sel: null, shown: null, results: [], pos: 0, best: loadBest() };
 
   function loadBest() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+  var SKEY = KEY + '-streak';
+  function ymd(d) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+  function today() { return ymd(new Date()); }
+  function yesterday() { var d = new Date(); d.setDate(d.getDate() - 1); return ymd(d); }
+  function loadStreak() { try { return JSON.parse(localStorage.getItem(SKEY)) || { last: '', n: 0, max: 0 }; } catch (e) { return { last: '', n: 0, max: 0 }; } }
+  function markStudied() {
+    try {
+      var st = loadStreak(), t = today();
+      if (st.last === t) return;
+      st.n = (st.last === yesterday()) ? st.n + 1 : 1;
+      st.last = t; st.max = Math.max(st.max || 0, st.n);
+      localStorage.setItem(SKEY, JSON.stringify(st));
+    } catch (e) {}
+  }
+  function streakHtml() {
+    var st = loadStreak(), t = today(), msg, sub = '', on = false;
+    if (st.last === t) { on = true; msg = '🔥 ' + st.n + '日連続で頑張ってるよ！'; if (st.max > st.n) sub = 'これまででいちばん長いのは ' + st.max + '日'; }
+    else if (st.last === yesterday()) { on = true; msg = '🔥 きのうまで ' + st.n + '日連続！'; sub = '今日も1問やると、連続がのびるよ'; }
+    else if (st.max > 0) { msg = 'おかえり！今日からまた、はじめよう'; sub = 'これまででいちばん長いのは ' + st.max + '日。休んでもだいじょうぶ'; }
+    else { msg = '今日の1問から、はじめよう'; sub = '毎日1問でもOK。続けた日数がここに出るよ'; }
+    return '<p class="streak' + (on ? ' on' : '') + '">' + msg + (sub ? '<small>' + sub + '</small>' : '') + '</p>';
+  }
   function saveBest() { try { localStorage.setItem(KEY, JSON.stringify(S.best)); } catch (e) {} }
 
   function m(s) {
@@ -269,7 +295,7 @@ if (typeof module !== 'undefined') module.exports = PARTS;
     }).join('');
     return '<nav class="topnav" aria-label="サイト内の移動"><a href="https://chugaku.senta1111.workers.dev/">← 中学トップ</a><a class="navbtn" href="https://chugaku.senta1111.workers.dev/suugaku.html">数学トップ</a></nav>' +
       '<header><p class="kicker lvbig">レベル13</p><h1>やりなおし数学</h1>' +
-      '<p class="lead">相似、円周角、三平方の定理、そして標本調査。最後のレベル。図をよく見て進もう。</p></header>' +
+      '<p class="lead">相似、円周角、三平方の定理、そして標本調査。最後のレベル。図をよく見て進もう。</p></header>' + streakHtml() +
       '<nav class="tabs" aria-label="パート">' + tabs + '</nav>' +
       (S.phase === 'review' ? '' : '<button class="btn sub allbtn" data-act="review">全問題を答えつきで見る（確認用）</button>');
   }
@@ -407,7 +433,7 @@ if (typeof module !== 'undefined') module.exports = PARTS;
     else if (act === 'start') { startQuiz(); render(); window.scrollTo(0, 0); }
     else if (act === 'pick') {
       var q = cur().qs[S.qi];
-      if (S.sel === null) { S.sel = i; S.results[S.qi] = (i === q.ans); }
+      if (S.sel === null) { S.sel = i; S.results[S.qi] = (i === q.ans); markStudied(); }
       S.shown = i; render();
       var fb = document.getElementById('fb');
       if (fb && fb.scrollIntoView) { try { fb.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (er) {} }
